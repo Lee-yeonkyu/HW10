@@ -36,7 +36,6 @@ int rear = -1;
 Node* deQueue();
 void enQueue(Node* aNode);
 
-
 int initializeBST(Node** h);
 
 /* functions that you have to implement */
@@ -46,12 +45,6 @@ void levelOrder(Node* ptr);	          /* level order traversal */
 int insert(Node* head, int key);      /* insert a node to the tree */
 int deleteNode(Node* head, int key);  /* delete the node for the key */
 int freeBST(Node* head); /* free all memories allocated to the tree */
-
-/* you may add your own defined functions if necessary */
-
-
-/*void printStack();*/
-
 
 
 int main()
@@ -140,8 +133,6 @@ int initializeBST(Node** h) {
 	return 1;
 }
 
-
-
 void recursiveInorder(Node* ptr) //재귀를 이용한 중위순회
 {
 	if(ptr) {
@@ -151,9 +142,6 @@ void recursiveInorder(Node* ptr) //재귀를 이용한 중위순회
 	}
 }
 
-/**
- * textbook: p 224s
- */
 void iterativeInorder(Node* node)
 {
 	Node* ptr;
@@ -172,9 +160,6 @@ void iterativeInorder(Node* node)
 	}
 }
 
-/**
- * textbook: p 225
- */
 void levelOrder(Node* ptr)
 {
 	if(!ptr){return;} //ptr값이 비었을때 종료
@@ -192,7 +177,6 @@ void levelOrder(Node* ptr)
 	}
 
 }
-
 
 int insert(Node* head, int key)
 {
@@ -237,11 +221,79 @@ int insert(Node* head, int key)
 	return 1;
 }
 
-
 int deleteNode(Node* head, int key)
 {
-}
+	Node *tmp=head->left; //현재 노드 저장용
+		Node *parent =tmp; //부모노드 저장용
+		Node *del; //tmp트리 저장용.
 
+		while(tmp->key !=key){ //현재 노드의 키값과 제거 대상의 키값이 같을때 까지 반복
+			parent=tmp; //부모 노드 저장
+			if(tmp->key<key) //현재 노드 보다 제거할 값이 더 크면
+				tmp=tmp->right; // 오른쪽으로 옮겨준다.
+			else //현재 노드 보다 제거할 값이 더 작으면
+				tmp=tmp->left; // 왼쪽으로 옮겨준다.
+		}
+		del=tmp;// 제거하고자 한 키값을 가지고 있는 노드의 위치 저장.
+
+		//1. 제거하고자 하는 노드가 리프 노드일 경우.
+		if(tmp->left==NULL &&tmp->right==NULL){ // 제거하고자 하는 노드의 자식이 하나도 없을때.
+			if(parent->left!=NULL){ //부모의 왼쪽 자식이 존재할때.
+				if(tmp->key==parent->left->key){ //그 값과 제거 하고자하는 노드의 키값이 같다면
+					parent->left=NULL; //왼쪽 노드를 NULL로 바꿔준다.
+					free(tmp);
+					return 0;
+				}
+			}
+		parent->right=NULL; //왼쪽 자식이 존재 하지 않다면 오른쪽 자식을 NULL로 처리.
+		free(del);
+		return 0;
+		}
+
+		//2. 제거 하고자 하는 노드의 자식이 양쪽 모두 있을때.
+		else if(tmp->left!=NULL && tmp->right!=NULL){
+			tmp=tmp->right; //제거 하고자 하는 노드 오른쪽 자식으로 내려간다.
+			if(tmp->left==NULL){ //오른쪽 자식의 왼쪽자식 없으면
+				del->key=tmp->key; //제거하고자 하는 노드의 오른쪽 자식의 key를 복사.
+				del->right=tmp->right; //제거하고자 하는 노드의 오른쪽 자식의 오른쪽 자식을 붙인다.
+				free(tmp); //tmp 제거
+				return 1;
+			}
+			while(1){
+				if(tmp->left==NULL){ //제거하고자하는 노드의 오른쪽 서브트리에서 key값이 가장 작은 노드 발견시.
+					del->key=tmp->key;//노드의 key를 복사한다.
+					parent->left=tmp->right;//가장 작은 key를 가지는 노드의 오른쪽 자식을 부모의 왼쪽에 붙인다.
+					free(tmp);
+					return 1;
+				}
+				else{ //오른쪽 자식에 왼쪽자식이 있으면
+					parent=tmp; //해당노드를 부모로 저장하고
+					tmp=tmp->left; //왼쪽 자식으로 노드를 옮겨 재탐색
+				}
+			}
+		}
+
+		//3. 제거하고자 하는 노드의 자식이 왼쪽이나 올느쪽 둘 중 하나만 있을때.
+		else{
+			if(tmp->right!=NULL){ //제거하고자 하는 노드가 오른쪽 자식을 가지고있을때
+				if(parent->left->key==key) //부모의 왼쪽에 달려있으면
+					parent->left=tmp->right; //부모의 왼쪽에 제거하고자 하는 노드의 오른쪽 자식을 붙인다.
+				else
+					parent->right=tmp->right;//부모의 오른쪽에 제거하고자 하는 노드의 오른쪽 자식을 붙인다.
+				free(tmp);
+				return 1;
+			}
+			if(tmp->left!=NULL){ //제거하고자 하는 노드가 왼쪽 자식을 가지고있을떄.
+				if(parent->left->key==key) //부모의 왼쪽에 달려있다.
+					parent->left=tmp->left; //부모의 왼쪽에 제거하고자 하는 노드의 오른쪽 자식을 붙인다.
+				else
+					parent->right=tmp->left;//부모의 오른쪽에 제거하고자 하는 노드의 오른쪽 자식을 붙인다.
+				free(tmp);
+				return 1;
+			}
+		}
+		return 1;
+}
 
 void freeNode(Node* ptr)
 {
@@ -269,8 +321,6 @@ int freeBST(Node* head)
 	return 1;
 }
 
-
-
 Node* pop()
 {
 	Node* node=NULL;
@@ -288,8 +338,6 @@ void push(Node* aNode)
 	top++; //top의 위치를 올려준다.
 	stack[top]=aNode; //스택의 맨 위에 aNode값을 넣어준다.
 }
-
-
 
 Node* deQueue() //큐에서의 데이터 출력을 위한 함수.
 {
