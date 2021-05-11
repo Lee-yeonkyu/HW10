@@ -155,20 +155,21 @@ void iterativeInorder(Node* node)
 		}
 		ptr=pop();//스택에서 삭제
 		if(ptr ==NULL){break;} //팝에서 나온 것이 공백일시 정지
-		printf("[%d]\t",ptr->key); //팝에서 나온 값 출력
+		printf(" [%d] ",ptr->key); //팝에서 나온 값 출력
 		ptr=ptr->right;  //오른쪽 값으로 바꿔준다.
 	}
 }
 
 void levelOrder(Node* ptr)
 {
+	front=rear=0;
 	if(!ptr){return;} //ptr값이 비었을때 종료
 	enQueue(ptr); //ptr의 값을 큐안에 삽입.
 
 	while(1){//ptr이 NULL이 될때까지 반복
 		ptr=deQueue(); //front의 위치를 올려준다.
 		if(ptr){
-			printf("[%d]\t",ptr->key);
+			printf(" [%d] ",ptr->key);
 			if(ptr->left){enQueue(ptr->left);}//왼쪽이 NULL이 아니면 삽입
 			if(ptr->right){(enQueue(ptr->right));} //오른쪽이 NULL이 아니면 삽입
 		}
@@ -276,23 +277,30 @@ int deleteNode(Node* head, int key)
 		//3. 제거하고자 하는 노드의 자식이 왼쪽이나 올느쪽 둘 중 하나만 있을때.
 		else{
 			if(tmp->right!=NULL){ //제거하고자 하는 노드가 오른쪽 자식을 가지고있을때
+				if(parent->left!=NULL){
+					if(parent->left->key==key) //부모의 왼쪽에 달려있으면
+						parent->left=tmp->right; //부모의 왼쪽에 제거하고자 하는 노드의 오른쪽 자식을 붙인다.
+					else
+						parent->right=tmp->right;//부모의 오른쪽에 제거하고자 하는 노드의 오른쪽 자식을 붙인다.
+					return 1;
+				}
+				else {parent->right=tmp->right;}
+				return 1;
+			}
+			if(tmp->left!=NULL){ //제거하고자 하는 노드가 왼쪽 자식을 가지고 있을때.
+			if(parent->left!=NULL){
 				if(parent->left->key==key) //부모의 왼쪽에 달려있으면
-					parent->left=tmp->right; //부모의 왼쪽에 제거하고자 하는 노드의 오른쪽 자식을 붙인다.
+					parent->left=tmp->left; //부모의 왼쪽에 제거하고자 하는 노드의 왼쪽 자식을 붙인다.
 				else
-					parent->right=tmp->right;//부모의 오른쪽에 제거하고자 하는 노드의 오른쪽 자식을 붙인다.
-				free(tmp);
+					parent->right=tmp->left;//부모의 오른쪽에 제거하고자 하는 노드의 왼쪽 자식을 붙인다.
 				return 1;
 			}
-			if(tmp->left!=NULL){ //제거하고자 하는 노드가 왼쪽 자식을 가지고있을떄.
-				if(parent->left->key==key) //부모의 왼쪽에 달려있다.
-					parent->left=tmp->left; //부모의 왼쪽에 제거하고자 하는 노드의 오른쪽 자식을 붙인다.
-				else
-					parent->right=tmp->left;//부모의 오른쪽에 제거하고자 하는 노드의 오른쪽 자식을 붙인다.
-				free(tmp);
-				return 1;
-			}
+			else {parent->right=tmp->left;}
+			return 1;
 		}
+		free(tmp);
 		return 1;
+}
 }
 
 void freeNode(Node* ptr)
