@@ -50,7 +50,7 @@ int freeBST(Node* head); /* free all memories allocated to the tree */
 /* you may add your own defined functions if necessary */
 
 
-void printStack();
+/*void printStack();*/
 
 
 
@@ -73,6 +73,7 @@ int main()
 		printf("----------------------------------------------------------------\n");
 
 		printf("Command = ");
+		fflush(stdout);
 		scanf(" %c", &command);
 
 		switch(command) {
@@ -84,11 +85,13 @@ int main()
 			break;
 		case 'i': case 'I':
 			printf("Your Key = ");
+			fflush(stdout);
 			scanf("%d", &key);
 			insert(head, key);
 			break;
 		case 'd': case 'D':
 			printf("Your Key = ");
+			fflush(stdout);
 			scanf("%d", &key);
 			deleteNode(head, key);
 			break;
@@ -105,7 +108,7 @@ int main()
 			break;
 
 		case 'p': case 'P':
-			printStack();
+			/*printStack();*/
 			break;
 
 		default:
@@ -139,7 +142,7 @@ int initializeBST(Node** h) {
 
 
 
-void recursiveInorder(Node* ptr)
+void recursiveInorder(Node* ptr) //재귀를 이용한 중위순회
 {
 	if(ptr) {
 		recursiveInorder(ptr->left);
@@ -153,6 +156,20 @@ void recursiveInorder(Node* ptr)
  */
 void iterativeInorder(Node* node)
 {
+	Node* ptr;
+	top= -1; //스택 초기화
+
+	ptr =node; //node의 값을 ptr에 넣어준다.
+	while(1){
+		while(ptr !=NULL){ //ptr가 왼쪽 끝까지 갈때까지 반복
+			push(ptr); //스택에 삽입
+			ptr=ptr->left; //ptr을 왼쪽으로 옮겨준다.
+		}
+		ptr=pop();//스택에서 삭제
+		if(ptr ==NULL){break;} //팝에서 나온 것이 공백일시 정지
+		printf("[%d]\t",ptr->key); //팝에서 나온 값 출력
+		ptr=ptr->right;  //오른쪽 값으로 바꿔준다.
+	}
 }
 
 /**
@@ -160,6 +177,20 @@ void iterativeInorder(Node* node)
  */
 void levelOrder(Node* ptr)
 {
+	if(!ptr){return;} //ptr값이 비었을때 종료
+	enQueue(ptr); //ptr의 값을 큐안에 삽입.
+
+	while(1){//ptr이 NULL이 될때까지 반복
+		ptr=deQueue(); //front의 위치를 올려준다.
+		if(ptr){
+			printf("[%d]\t",ptr->key);
+			if(ptr->left){enQueue(ptr->left);}//왼쪽이 NULL이 아니면 삽입
+			if(ptr->right){(enQueue(ptr->right));} //오른쪽이 NULL이 아니면 삽입
+		}
+		else
+			break;
+	}
+
 }
 
 
@@ -242,20 +273,39 @@ int freeBST(Node* head)
 
 Node* pop()
 {
+	Node* node=NULL;
+	if(top == -1) // 스택이 비었을 시에 종료
+		return node;
+	node=stack[top];//스택에 맨위에 node를 넣어준다.
+	top--; //top을 내려준다.
+	return node;
 }
 
 void push(Node* aNode)
 {
+	if(top >=MAX_STACK_SIZE-1) //스택이 꽉찼을때 종료
+		return;
+	top++; //top의 위치를 올려준다.
+	stack[top]=aNode; //스택의 맨 위에 aNode값을 넣어준다.
 }
 
 
 
-Node* deQueue()
+Node* deQueue() //큐에서의 데이터 출력을 위한 함수.
 {
+	Node* node =NULL;
+	if(front == rear){return node;} //비어있다면 종료
+	front++; //front의 위치를 올려준다.
+	node=queue[front];
+	return node;
 }
 
-void enQueue(Node* aNode)
+void enQueue(Node* aNode) //큐에서 데이터를 입력을 위한 함수
 {
+	if(rear == MAX_QUEUE_SIZE-1){return;} //큐가 꽉찼을때 종료
+
+	rear++; //rear값을 올려준다.
+	queue[rear]=aNode; //큐의 rear위치에 aNode를 넣어준다.
 }
 
 
